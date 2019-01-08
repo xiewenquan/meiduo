@@ -11,6 +11,8 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.models import User
+from users.serializers import RegiserUserSerializer
+
 
 class RegisterUsernameAPIView(APIView):
 
@@ -44,3 +46,17 @@ class RegisterPhoneCountAPIView(APIView):
         }
 
         return Response(context)
+
+
+class RegiserUserAPIView(APIView):
+
+    def post(self,reqeust):
+        # 1. 接收数据
+        data = reqeust.data
+        # 2. 校验数据
+        serializer = RegiserUserSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        # 3. 数据入库
+        serializer.save()
+        # 4. 返回相应
+        return Response(serializer.data)

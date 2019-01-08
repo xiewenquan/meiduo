@@ -1,15 +1,16 @@
-from random import random
+import random
 from django.http import HttpResponse
 from django_redis import get_redis_connection
-from requests import Response
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from libs.captcha.captcha import captcha
-
+from libs.yuntongxun.sms import CCP
 # Create your views here.
 
-#图片验证码
+
 from verifications.serializers import RegisterSmscodeSerializer
 
+#图片验证码
 class RegisterImageAPIView(APIView):
     def get(self,request,image_code_id):
         #1.接受image_code_id，生成图片和验证码
@@ -48,3 +49,8 @@ class RegisterSmscodeAPIView(APIView):
 
         # 6.返回相应
         return Response({'msg':'ok'})
+
+
+
+
+
