@@ -1,4 +1,6 @@
 from django.conf.urls import url
+from rest_framework_jwt.views import obtain_jwt_token
+
 from users import views
 
 urlpatterns=[
@@ -8,4 +10,6 @@ urlpatterns=[
     url(r'^phones/(?P<mobile>1[345789]\d{9})/count/$', views.RegisterPhoneCountAPIView.as_view(), name='phonecount'),
     #
     url(r'^$',views.RegiserUserAPIView.as_view()),
+    #实现认证
+    url(r'^auths/', obtain_jwt_token),
 ]

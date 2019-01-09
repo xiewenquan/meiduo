@@ -14,6 +14,8 @@ import os
 import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import datetime
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #让django找到apps这个包
 sys.path.insert(0,os.path.join(BASE_DIR,'apps'))
@@ -210,8 +212,22 @@ LOGGING = {
 REST_FRAMEWORK = {
     # 异常处理
     'EXCEPTION_HANDLER': 'utils.exceptions.exception_handler',
+
+    #添加认证方式
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',  # 优先采用JWT认证
+        'rest_framework.authentication.SessionAuthentication',           # 如果没有jwt则采用 sessison认证
+        'rest_framework.authentication.BasicAuthentication',
+    ),
 }
 
 # 1.我们想要替换系统的User需要通过设置 AUTH_USER_MODEL来实现
 # 2. 子应用.模型类名  只能有一个点(.)
 AUTH_USER_MODEL = 'users.User'
+
+
+JWT_AUTH={
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+        'utils.users.jwt_response_payload_handler',
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+}
