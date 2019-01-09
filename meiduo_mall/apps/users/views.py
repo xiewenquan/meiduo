@@ -60,3 +60,6 @@ class RegiserUserAPIView(APIView):
         serializer.save()
         # 4. 返回相应
         return Response(serializer.data)
+
+
+#当注册成功之后，自动登录
