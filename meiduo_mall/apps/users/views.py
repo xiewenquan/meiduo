@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 from users.models import User
 from users.serializers import RegiserUserSerializer
 
-
+#判断用户是否注册
 class RegisterUsernameAPIView(APIView):
 
     def get(self,requset,username):
@@ -47,7 +47,7 @@ class RegisterPhoneCountAPIView(APIView):
 
         return Response(context)
 
-
+#注册
 class RegiserUserAPIView(APIView):
 
     def post(self,reqeust):

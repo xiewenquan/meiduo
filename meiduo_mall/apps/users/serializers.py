@@ -62,5 +62,19 @@ class  RegiserUserSerializer(serializers.ModelSerializer):
         if redis_code.decode() != sms_code:
             raise serializers.ValidationError('验证码不一致')
 
-
         return attrs
+
+    def create(self, validated_data):
+        del validated_data['sms_code']
+        del validated_data['allow']
+        del validated_data['password2']
+
+        # 现在的数据满足要求了, 可以让父类去执行
+        user = super().create(validated_data)
+
+        #密码加密
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user
+
