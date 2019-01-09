@@ -1,6 +1,7 @@
 var vm = new Vue({
 	el: '#app',
 	data: {
+		host,
 		error_name: false,
 		error_password: false,
 		error_check_password: false,
@@ -134,7 +135,7 @@ var vm = new Vue({
 
 			if(this.error_name == false && this.error_password == false && this.error_check_password == false
                 && this.error_phone == false && this.error_sms_code == false && this.error_allow == false) {
-                axios.post('http://127.0.0.1:8000'+'/users/', {
+                axios.post(this.host+'/users/', {
                         username: this.username,
                         password: this.password,
                         password2: this.password2,

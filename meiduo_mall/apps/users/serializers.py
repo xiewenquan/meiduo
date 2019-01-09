@@ -6,9 +6,9 @@ from django_redis import get_redis_connection
 
 class  RegiserUserSerializer(serializers.ModelSerializer):
 
-    sms_code=serializers.CharField(label='短信验证码',max_length=6,min_length=6,required=True,allow_blank=False)
-    allow=serializers.CharField(label='是否同意协议',required=True,allow_null=False)
-    password2=serializers.CharField(label='确认密码',required=True,allow_null=False)
+    sms_code=serializers.CharField(label='短信验证码',max_length=6,min_length=6,write_only=True,required=True,allow_blank=False)
+    allow=serializers.CharField(label='是否同意协议',required=True,allow_null=False,write_only=True)
+    password2=serializers.CharField(label='确认密码',required=True,allow_null=False,write_only=True)
 
     """
     ModelSerializer 自动生成字段的过程会对 fields 进行遍历, 先去 model中查看是否有相应的字段
