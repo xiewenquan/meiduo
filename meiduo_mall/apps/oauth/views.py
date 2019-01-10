@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from meiduo_mall import settings
 from oauth.models import OAuthQQUser
+from oauth.serializers import OAuthQQUserSerializer
 from oauth.utils import generic_open_id
 
 """
@@ -53,9 +54,9 @@ class OAuthQQURLAPIView(APIView):
     3. 用token换openid
 5.按照步骤实现功能
 """
-#获取用户openid
-class OAuthQQUserAPIView(APIView):
 
+class OAuthQQUserAPIView(APIView):
+    # 获取用户openid
     def get(self,request):
 
         #1.接收数据
@@ -71,7 +72,7 @@ class OAuthQQUserAPIView(APIView):
 
         #3.token--->openid
         openid=oauth.get_open_id(token)
-        
+
         # 根据openid查询数据
         try:
             qquser=OAuthQQUser.objects.get(openid=openid)
@@ -96,3 +97,41 @@ class OAuthQQUserAPIView(APIView):
                 'username':qquser.user.username,
                 'user_id':qquser.user.id
             })
+
+
+    """
+    当用户点击绑定的时候 ,我们需要将 手机号,密码,短信验证码和加密的openid 传递过来
+    1. 接收数据
+    2. 对数据进行校验
+    3. 保存数据
+    4. 返回相应
+    POST    /oauth/qq/users/
+    """
+    #OpenID绑定美多商城用户
+    def post(self,request):
+
+        #1.接收数据
+        data=request.data
+
+        #2.对数据进行校验
+        serializer=OAuthQQUserSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        #3.保存数据
+        qquser=serializer.save()
+
+        #4.返回相应,应该有token 数据
+
+        from rest_framework_jwt.settings import api_settings
+
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+        payload = jwt_payload_handler(qquser.user)
+        token = jwt_encode_handler(payload)
+
+        return Response({
+            'token': token,
+            'username': qquser.user.username,
+            'user_id': qquser.user.id
+        })
