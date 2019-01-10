@@ -50,9 +50,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users.apps.UsersConfig',
+    # 安装框架
     'rest_framework',
+    # 安装cors
     'corsheaders',
+    # 安装应用
+    'users.apps.UsersConfig',
+    'oauth.apps.OauthConfig',
 ]
 
 MIDDLEWARE = [
@@ -232,3 +236,8 @@ JWT_AUTH={
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
 }
 
+
+# QQ登录参数
+QQ_CLIENT_ID = '101474184'
+QQ_CLIENT_SECRET = 'c6ce949e04e12ecc909ae6a8b09b637c'
+QQ_REDIRECT_URI = 'http://www.meiduo.site:8080/oauth_callback.html'
