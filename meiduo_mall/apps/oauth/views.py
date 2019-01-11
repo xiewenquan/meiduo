@@ -60,14 +60,15 @@ class OAuthQQUserAPIView(APIView):
     def get(self,request):
 
         #1.接收数据
-        params = request.data
+        params = request.query_params
         code=params.get('code')
         if code is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
         #2.code--->token
         oauth = OAuthQQ(client_id=settings.QQ_CLIENT_ID,
                         client_secret=settings.QQ_CLIENT_SECRET,
-                        redirect_uri=settings.QQ_REDIRECT_URI,)
+                        redirect_uri=settings.QQ_REDIRECT_URI)
         token=oauth.get_access_token(code)
 
         #3.token--->openid
@@ -76,11 +77,12 @@ class OAuthQQUserAPIView(APIView):
         # 根据openid查询数据
         try:
             qquser=OAuthQQUser.objects.get(openid=openid)
-        except OAuthQQUser.DoseNotExitst:
+        except OAuthQQUser.DoesNotExist:
             #库中不存在
             token = generic_open_id(openid)
 
-            return  Response({'access_token':token})
+            return Response({'access_token':token})
+
 
         else:
             # 存在,应该让用户登陆
@@ -135,3 +137,4 @@ class OAuthQQUserAPIView(APIView):
             'username': qquser.user.username,
             'user_id': qquser.user.id
         })
+

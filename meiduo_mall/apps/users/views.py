@@ -8,10 +8,12 @@ from django.shortcuts import render
 # 2.请求方式	GET
 # 3.URL路由定义： /users/usernames/(?P<username>\w{5,20})/count/
 # 4.确定视图（接口）
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.models import User
-from users.serializers import RegiserUserSerializer
+from users.serializers import RegiserUserSerializer, UserCenterInfoSerializer
+
 
 #判断用户是否注册
 class RegisterUsernameAPIView(APIView):
@@ -62,4 +64,25 @@ class RegiserUserAPIView(APIView):
         return Response(serializer.data)
 
 
-#当注册成功之后，自动登录
+    """
+    个人中心的 信息展示
+    必须是登陆用户才可以访问
+
+    1. 让前端传递 用户信息
+    2. 我们根据用户的信息 来获取  user
+    3. 将对象转换为字典数据
+
+    GET     /users/infos/
+    """
+#拥护衷心
+class UserCenterInfoAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        #接收数据
+        user = request.user
+        #将模型转换为字典（JSON）
+        serializer = UserCenterInfoSerializer(user)
+        #返回响应
+        return Response(serializer.data)

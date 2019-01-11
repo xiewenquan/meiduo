@@ -72,7 +72,7 @@ var vm = new Vue({
                         if (!return_url) {
                             return_url = '/index.html';
                         }
-                        // location.href = return_url;
+                        location.href = return_url;
                     })
                     .catch(error => {
                         this.error_pwd_message = '用户名或密码错误';
