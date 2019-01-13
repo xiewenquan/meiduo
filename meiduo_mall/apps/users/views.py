@@ -74,7 +74,7 @@ class RegiserUserAPIView(APIView):
 
     GET     /users/infos/
     """
-#用户中心
+#用户中心 方式一
 # class UserCenterInfoAPIView(APIView):
 #
 #     permission_classes = [IsAuthenticated]
@@ -88,7 +88,7 @@ class RegiserUserAPIView(APIView):
 #         return Response(serializer.data)
 
 
-
+#用户中心 方式二
 from rest_framework.generics import RetrieveAPIView
 class UserCenterInfoAPIView(RetrieveAPIView):
 
@@ -127,20 +127,34 @@ class UserCenterInfoAPIView(RetrieveAPIView):
 
 PUT     /users/emails/
 """
+#更新邮箱　方式一
+# class UserEmailInfoAPIView(APIView):
+#
+#     permission_classes = [IsAuthenticated]
+#
+#     def put(self,request):
+#         # 1. 后端需要接收 邮箱
+#         data = request.data
+#         # 2. 校验
+#         serializer = UserEmailInfoSerializer(instance=request.user,data=data)
+#         serializer.is_valid(raise_exception=True)
+#         # 3. 更新数据
+#         serializer.save()
+#          # 发送邮件
+#         # 4. 返回相应
+#         return Response(serializer.data)
 
-class UserEmailInfoAPIView(APIView):
 
+#更新邮箱　方式二
+from rest_framework.generics import UpdateAPIView
+
+class UserEmailInfoAPIView(UpdateAPIView):
+    # 权限,必须是登陆用户才可以访问此接口
     permission_classes = [IsAuthenticated]
 
-    def put(self,request):
-        # 1. 后端需要接收 邮箱
-        data = request.data
-        # 2. 校验
-        serializer = UserEmailInfoSerializer(instance=request.user,data=data)
-        serializer.is_valid(raise_exception=True)
-        # 3. 更新数据
-        serializer.save()
-         # 发送邮件
-        # 4. 返回相应
-        return Response(serializer.data)
+    serializer_class = UserEmailInfoSerializer
 
+    # 父类方法 不能满足我们的需求
+    def get_object(self):
+
+        return self.request.user
