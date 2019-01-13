@@ -16,4 +16,7 @@ urlpatterns=[
 
     # users/emails/
     url(r'^emails/$',views.UserEmailInfoAPIView.as_view()),
+
+    url(r'^emails/verification/$', views.UserEmailVerificationAPIView.as_view()),
+
 ]

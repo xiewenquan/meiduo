@@ -16,6 +16,9 @@ from users.serializers import RegiserUserSerializer, UserCenterInfoSerializer, U
 
 
 #判断用户是否注册
+from users.utils import check_token
+
+
 class RegisterUsernameAPIView(APIView):
 
     def get(self,requset,username):
@@ -147,7 +150,7 @@ PUT     /users/emails/
 
 #更新邮箱　方式二
 from rest_framework.generics import UpdateAPIView
-
+#更新邮箱
 class UserEmailInfoAPIView(UpdateAPIView):
     # 权限,必须是登陆用户才可以访问此接口
     permission_classes = [IsAuthenticated]
@@ -158,3 +161,43 @@ class UserEmailInfoAPIView(UpdateAPIView):
     def get_object(self):
 
         return self.request.user
+
+
+
+"""
+激活需求:
+当用户点击激活连接的时候,需要让前端接收到 token信息
+然后让前端发送 一个请求,这个请求 包含  token信息
+
+1. 接收token信息
+2. 对token进行解析
+3. 解析获取user_id之后,进行查询
+4. 修改状态
+5. 返回相应
+
+GET     /users/emails/verification/
+"""
+
+#APIView                        基类
+#GenericAPIVIew                 对列表视图和详情视图做了通用支持,一般和mixin配合使用
+#UpdateAPIView                   封装好了
+from rest_framework import status
+class UserEmailVerificationAPIView(APIView):
+
+    def get(self,request):
+        # 1. 接收token信息
+        token = request.query_params.get('token')
+        if token is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # 2. 对token进行解析
+        user_id = check_token(token)
+
+        if user_id is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # 3. 解析获取user_id之后,进行查询
+        user = User.objects.get(pk=user_id)
+        # 4. 修改状态
+        user.email_active=True
+        user.save()
+        # 5. 返回相应
+        return Response({'msg':'ok'})
