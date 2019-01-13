@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     # 安装应用
     'users.apps.UsersConfig',
     'oauth.apps.OauthConfig',
+    'areas.apps.AreasConfig',
 ]
 
 MIDDLEWARE = [
