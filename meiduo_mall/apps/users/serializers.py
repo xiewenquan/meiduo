@@ -1,7 +1,11 @@
 import re
 from rest_framework import serializers
+
+from meiduo_mall import settings
 from users.models import User
 from django_redis import get_redis_connection
+
+from users.utils import generic_verify_url
 
 
 class  RegiserUserSerializer(serializers.ModelSerializer):
@@ -98,4 +102,66 @@ class UserCenterInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model =User
         fields=('id','username','mobile','email','email_active')
+
+
+
+class UserEmailInfoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'email')
+        extra_kwargs = {
+            'email': {
+                'required': True
+            }
+        }
+
+
+    def update(self, instance, validated_data):
+
+        # 先把数据 更新一下
+        email = validated_data.get('email')
+
+        instance.email=email
+        instance.save()
+
+        # super().update(instance,validate_data)
+
+        # 再发送邮件
+        from django.core.mail import send_mail
+
+        #subject, message, from_email, recipient_list,
+        #subject            主题
+        subject = '美多商场激活邮件'
+        # message,          内容
+        message=''
+        # from_email,       谁发送的
+        from_email=settings.EMAIL_FROM
+        # recipient_list,   收件人列表
+        recipient_list = [email]
+
+        # user_id = 8
+        verify_url = generic_verify_url(instance.id)
+
+        # html_message = '<p>尊敬的用户您好！</p>' \
+        #                '<p>感谢您使用美多商城。</p>' \
+        #                '<p>您的邮箱为：%s 。请点击此链接激活您的邮箱：</p>' \
+        #                '<p><a href="%s">%s<a></p>' % (email, verify_url, verify_url)
+        #
+        #
+        # send_mail(subject=subject,
+        #           message=message,
+        #           from_email=from_email,
+        #           recipient_list=recipient_list,
+        #           html_message=html_message)
+
+        from celery_tasks.mail.tasks import send_celery_email
+        send_celery_email.delay(subject,
+                  message,
+                  from_email,
+                  email,
+                  verify_url,
+                  recipient_list)
+
+        return instance
 

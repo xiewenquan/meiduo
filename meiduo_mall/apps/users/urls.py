@@ -12,5 +12,8 @@ urlpatterns=[
     #实现认证
     url(r'^auths/$', obtain_jwt_token),
     #用户中心
-    url(r'infos/$',views.UserCenterInfoAPIView.as_view())
+    url(r'infos/$',views.UserCenterInfoAPIView.as_view()),
+
+    # users/emails/
+    url(r'^emails/$',views.UserEmailInfoAPIView.as_view()),
 ]

@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.models import User
-from users.serializers import RegiserUserSerializer, UserCenterInfoSerializer
+from users.serializers import RegiserUserSerializer, UserCenterInfoSerializer, UserEmailInfoSerializer
 
 
 #判断用户是否注册
@@ -74,15 +74,73 @@ class RegiserUserAPIView(APIView):
 
     GET     /users/infos/
     """
-#拥护衷心
-class UserCenterInfoAPIView(APIView):
+#用户中心
+# class UserCenterInfoAPIView(APIView):
+#
+#     permission_classes = [IsAuthenticated]
+#
+#     def get(self,request):
+#         #接收数据
+#         user = request.user
+#         #将模型转换为字典（JSON）
+#         serializer = UserCenterInfoSerializer(user)
+#         #返回响应
+#         return Response(serializer.data)
+
+
+
+from rest_framework.generics import RetrieveAPIView
+class UserCenterInfoAPIView(RetrieveAPIView):
 
     permission_classes = [IsAuthenticated]
 
-    def get(self,request):
-        #接收数据
-        user = request.user
-        #将模型转换为字典（JSON）
-        serializer = UserCenterInfoSerializer(user)
-        #返回响应
+    serializer_class = UserCenterInfoSerializer
+
+    # queryset = User.objects.all()
+
+    # 已有的父类不能满足我们的需求
+    def get_object(self):
+
+        return self.request.user
+
+
+"""
+1.分析需求 (到底要干什么)
+2.把需要做的事情写下来(把思路梳理清楚)
+3.路由和请求方式
+4.确定视图
+5.按照步骤实现功能
+
+当用户 输入邮箱之后,点击保存的时候,
+1.我们需要将 邮箱内容发送给后端,后端需要更新 指定用户的 email字段
+2.同时后端需要给这个邮箱发送一个           激活连接
+3.当用户点击激活连接的时候 ,改变 email_active的状态
+
+
+用户 输入邮箱之后,点击保存的时候,
+我们需要将 邮箱内容发送给后端
+
+# 1. 后端需要接收 邮箱
+# 2. 校验
+# 3. 更新数据
+# 4. 返回相应
+
+PUT     /users/emails/
+"""
+
+class UserEmailInfoAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def put(self,request):
+        # 1. 后端需要接收 邮箱
+        data = request.data
+        # 2. 校验
+        serializer = UserEmailInfoSerializer(instance=request.user,data=data)
+        serializer.is_valid(raise_exception=True)
+        # 3. 更新数据
+        serializer.save()
+         # 发送邮件
+        # 4. 返回相应
         return Response(serializer.data)
+
