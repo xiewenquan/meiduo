@@ -22,4 +22,7 @@ urlpatterns = [
     url(r'^verifications/',include('verifications.urls',namespace='verifications')),
 
     url(r'^oauth/', include('oauth.urls')),
+
+    url(r'^areas/', include('areas.urls')),
+
 ]
