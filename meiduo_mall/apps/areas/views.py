@@ -47,8 +47,8 @@ select * from tb_areas where parent_id=110100;
 
 
 from rest_framework.viewsets import ReadOnlyModelViewSet
-
-class AreaModelViewSet(ReadOnlyModelViewSet):
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
+class AreaModelViewSet(CacheResponseMixin,ReadOnlyModelViewSet):
 
     # queryset = Area.objects.all()   #所有信息
     # queryset = Area.objects.filter(parent=None)   #省的信息
