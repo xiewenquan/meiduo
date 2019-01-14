@@ -8,12 +8,15 @@ from django.shortcuts import render
 # 2.请求方式	GET
 # 3.URL路由定义： /users/usernames/(?P<username>\w{5,20})/count/
 # 4.确定视图（接口）
+from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from users.models import User
-from users.serializers import RegiserUserSerializer, UserCenterInfoSerializer, UserEmailInfoSerializer
+from rest_framework.viewsets import GenericViewSet
 
+from users.models import User
+from users.serializers import RegiserUserSerializer, UserCenterInfoSerializer, UserEmailInfoSerializer, \
+    AddressSerializer
 
 #判断用户是否注册
 from users.utils import check_token
@@ -201,3 +204,59 @@ class UserEmailVerificationAPIView(APIView):
         user.save()
         # 5. 返回相应
         return Response({'msg':'ok'})
+
+
+# class AddressViewSet(mixins.ListModelMixin,mixins.CreateModelMixin,mixins.UpdateModelMixin,GenericViewSet):
+#     """
+#     用户地址新增与修改
+#     list GET: /users/addresses/
+#     create POST: /users/addresses/
+#     destroy DELETE: /users/addresses/
+#     action PUT: /users/addresses/pk/status/
+#     action PUT: /users/addresses/pk/title/
+#     """
+#
+#     #制定序列化器
+#     serializer_class = AddressSerializer
+#     #添加用户权限
+#     permission_classes = [IsAuthenticated]
+#     #由于用户的地址有存在删除的状态,所以我们需要对数据进行筛选
+#     def get_queryset(self):
+#         return self.request.user.addresses.filter(is_deleted=False)
+#
+#     def create(self, request, *args, **kwargs):
+#         """
+#         保存用户地址数据
+#         """
+#         count = request.user.addresses.count()
+#         if count >= 20:
+#             return Response({'message':'保存地址数量已经达到上限'},status=status.HTTP_400_BAD_REQUEST)
+#
+#         # return super().create(request,*args,**kwargs)
+
+
+"""
+1.分析需求 (到底要干什么)
+2.把需要做的事情写下来(把思路梳理清楚)
+3.路由和请求方式
+4.确定视图
+5.按照步骤实现功能
+
+新增地址
+1. 后端接收数据
+2. 对数据进行校验
+3. 数据入库
+4. 返回相应
+POST        /users/addresses/
+"""
+#APIView                        基类
+#GenericAPIVIew                 对列表视图和详情视图做了通用支持,一般和mixin配合使用
+#CreateAPIView                   封装好了
+from rest_framework.generics import CreateAPIView
+from rest_framework.generics import GenericAPIView
+
+class UserAddressAPIView(CreateAPIView):
+
+    serializer_class = AddressSerializer
+
+    # queryset =  新增数据用不到该属性

@@ -20,3 +20,14 @@ urlpatterns=[
     url(r'^emails/verification/$', views.UserEmailVerificationAPIView.as_view()),
 
 ]
+
+
+# #设置视图集router
+# from .views import AddressViewSet
+# from rest_framework.routers import DefaultRouter
+#
+# router = DefaultRouter()
+#
+# router.register(r'addresses',AddressViewSet,base_name='address')
+#
+# urlpatterns += router.urls
