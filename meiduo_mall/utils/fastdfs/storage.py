@@ -33,7 +33,7 @@ class MyStorage(Storage):
         #3. 上传图片，并获取　返回内容
         result=client.upload_by_buffer(file_data)
         #4. 根据返回内容，获取remote file_id
-        if result.get('Status')=='Upload successed':
+        if result.get('Status')=='Upload successed.':
             file_id=result.get('Remote file_id')
         else:
             raise Exception("上传失败")
