@@ -45,14 +45,14 @@ class HomeAPIView(APIView):
 GET      /goods/categories/(?P<category_id>\d+)/hotskus/
 
 """
-# from rest_framework.generics import ListAPIView
-# class HotSKUListAPIView(ListAPIView):
-#
-#     # queryset = SKU.objects.filter(category_id=category_id).order_by('-sales')[:2]
-#     # queryset = SKU.objects.all()
-#     def get_queryset(self):
-#         category_id = self.kwargs['category_id']
-#         return SKU.objects.filter(category_id=category_id).order_by('-sales')[:2]
-#
-#
-#     serializer_class = HotSKUListSerializer
+from rest_framework.generics import ListAPIView
+class HotSKUListAPIView(ListAPIView):
+
+    # queryset = SKU.objects.filter(category_id=category_id).order_by('-sales')[:2]
+    # queryset = SKU.objects.all()
+    def get_queryset(self):
+        category_id = self.kwargs['category_id']
+        return SKU.objects.filter(category_id=category_id).order_by('-sales')[:2]
+
+
+    serializer_class = HotSKUListSerializer
