@@ -229,6 +229,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',           # 如果没有jwt则采用 sessison认证
         'rest_framework.authentication.BasicAuthentication',
     ),
+
+    # 分页
+    'DEFAULT_PAGINATION_CLASS': 'utils.pagination.StandardResultsSetPagination',
 }
 
 # 1.我们想要替换系统的User需要通过设置 AUTH_USER_MODEL来实现
