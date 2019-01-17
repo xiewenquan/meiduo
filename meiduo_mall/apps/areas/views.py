@@ -53,6 +53,9 @@ class AreaModelViewSet(CacheResponseMixin,ReadOnlyModelViewSet):
     # queryset = Area.objects.all()   #所有信息
     # queryset = Area.objects.filter(parent=None)   #省的信息
 
+    #让它不使用分页
+    pagination_class = None
+
     def get_queryset(self):
 
         # 我们可以根据 不同的业务逻辑返回不同的数据源
