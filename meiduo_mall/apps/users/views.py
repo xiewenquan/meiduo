@@ -8,15 +8,17 @@ from django.shortcuts import render
 # 2.请求方式	GET
 # 3.URL路由定义： /users/usernames/(?P<username>\w{5,20})/count/
 # 4.确定视图（接口）
+from django_redis import get_redis_connection
 from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
+from goods.models import SKU
 from users.models import User
 from users.serializers import RegiserUserSerializer, UserCenterInfoSerializer, UserEmailInfoSerializer, \
-    AddressSerializer
+    AddressSerializer, AddUserBrowsingHistorySerializer, SKUSerializer
 
 #判断用户是否注册
 from users.utils import check_token
@@ -260,3 +262,61 @@ class UserAddressAPIView(CreateAPIView):
     serializer_class = AddressSerializer
 
     # queryset =  新增数据用不到该属性
+
+
+
+"""
+最近浏览记录
+1. 必须是登陆用户的 我们才记录浏览记录
+2. 在详情页面中添加 , 添加商品id 和用户id
+3. 把数据保存在数据库中是没问题的
+4. 我们把数据保存在redis的列表中 (回顾redis)
+"""
+
+"""
+添加浏览记录的业务逻辑
+1. 接收商品id
+2. 校验数据
+3. 数据保存到redis中
+4. 返回相应
+post    /users/histories/
+"""
+
+#APIView                        基类
+#GenericAPIVIew                 对列表视图和详情视图做了通用支持,一般和mixin配合使用
+#CreateAPIView                   封装好了
+from rest_framework.generics import CreateAPIView
+from rest_framework.mixins import ListModelMixin
+class UserHistoryAPIView(CreateAPIView):
+
+
+
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = AddUserBrowsingHistorySerializer
+
+
+    """
+    获取浏览记录数据
+    1. 从redis中获取数据   [1,2,3]
+    2. 根据id查询数据     [SKU,SKU,SKU]
+    3. 使用序列化器转换数据
+    4. 返回相应
+    """
+
+    def get(self,request):
+
+        user= request.user
+        #1 从redis 获取数据
+            #1.1链接redis
+        redis_conn = get_redis_connection('history')
+        ids = redis_conn.lrange('history_%s' % user.id, 0, 4)
+        #2. 根据id查询数据
+        skus=[]
+        for id in ids:
+            sku=SKU.objects.get(pk=id)
+            skus.append(sku)
+        #3.使用序列化器转换数据
+        serializer=SKUSerializer(skus,many=True)
+        #4.返回响应
+        return Response(serializer.data)

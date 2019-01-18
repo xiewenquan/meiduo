@@ -184,3 +184,53 @@ class AddressSerializer(serializers.ModelSerializer):
         #Address模型类中有user属性,将user对象添加到模型类的创建参数中
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
+
+
+from goods.models import SKU
+from django_redis import get_redis_connection
+
+class AddUserBrowsingHistorySerializer(serializers.Serializer):
+    """
+    添加用户浏览记录序列化器
+    """
+    sku_id = serializers.IntegerField(label='商品编号',min_value=1,required=True)
+
+    def validate_sku_id(self,value):
+        """
+        检查商品是否存在
+        """
+        try:
+            SKU.objects.get(pk=value)
+        except SKU.DoesNotExist:
+            raise serializers.ValidationError('商品不存在')
+
+        return value
+
+
+    def create(self, validated_data):
+
+        sku_id = validated_data['sku_id']
+
+        user = self.context['request'].user
+
+        # 把数据保存到redis中
+        #1. 连接redis
+        redis_conn = get_redis_connection('history')
+        #2. 先把 sku_id 删除
+        # 列表用户的key 不能重复
+        #  history_3
+        redis_conn.lrem('history_%s'%user.id,0,sku_id)
+        #3. 再添加到左边
+        redis_conn.lpush('history_%s'%user.id,sku_id)
+
+        return validated_data
+
+
+class SKUSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SKU
+        fields = ('id', 'name', 'price', 'default_image_url', 'comments')
+
+
+
