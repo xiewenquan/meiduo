@@ -14,7 +14,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
+from rest_framework_jwt.views import ObtainJSONWebToken
 
+from carts.utils import merge_cookie_to_redis
 from goods.models import SKU
 from users.models import User
 from users.serializers import RegiserUserSerializer, UserCenterInfoSerializer, UserEmailInfoSerializer, \
@@ -320,3 +322,21 @@ class UserHistoryAPIView(CreateAPIView):
         serializer=SKUSerializer(skus,many=True)
         #4.返回响应
         return Response(serializer.data)
+
+
+#合并购物车
+class MergeLoginAPIView(ObtainJSONWebToken):
+
+    def post(self,request, *args, **kwargs):
+        #调用jwt扩展的方法，对用户登录的数据进行验证
+        response=super().post(request)
+
+        #如果用户登陆成功，进行购物车数据合并
+        serializer=self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            #表示用户登陆成功
+            user=serializer.validated_data.get('user')
+            #合并购物车
+            response=merge_cookie_to_redis(request, user, response)
+
+        return response

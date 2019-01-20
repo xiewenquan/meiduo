@@ -13,8 +13,8 @@ urlpatterns=[
     url(r'^$',views.RegiserUserAPIView.as_view()),
 
     #实现认证
-    url(r'^auths/$', obtain_jwt_token),
-
+    # url(r'^auths/$', obtain_jwt_token),
+    url(r'auths/',views.MergeLoginAPIView.as_view(),name='auths'),
     #用户中心
     url(r'infos/$',views.UserCenterInfoAPIView.as_view()),
 
