@@ -27,7 +27,7 @@ class CartSerializer(serializers.Serializer):
 class CartSKUSerializer(serializers.ModelSerializer):
 
     count = serializers.IntegerField(label="个数",read_only=True)
-    selected=serializers.BooleanField(label="选中的状态",read_only=True)
+    selected=serializers.BooleanField(label="选中的状态",default=True,required=False)
 
     class Meta:
         model=SKU

@@ -56,77 +56,179 @@ class CartAPIView(APIView):
         pass
 
     #POST        cart/           新增购物车
-    def post(self,request):
-        """
-        添加购物车的业务逻辑是:
-        用户点击 添加购物车按钮的时候,前端需要收集数据:
-        商品id,个数,选中状态默认为True,用户信息
+    # def post(self,request):
+    #     """
+    #     添加购物车的业务逻辑是:
+    #     用户点击 添加购物车按钮的时候,前端需要收集数据:
+    #     商品id,个数,选中状态默认为True,用户信息
+    #
+    #     1.接收数据
+    #     2.校验数据(商品是否存在,商品的个数是否充足)
+    #     3.获取校验之后的数据
+    #     4.获取用户信息
+    #     5.根据用户的信息进行判断用户是否登陆
+    #     6.登陆用户保存在redis中
+    #         6.1 连接redis
+    #         6.2 将数据保存在redis中的hash 和 set中
+    #         6.3 返回相应
+    #     7.未登录用户保存在cookie中
+    #         7.1 先获取cookie数据
+    #         7.2 判断是否存在cookie数据
+    #         7.3 如果添加的购物车商品id存在 则进行商品数量的累加
+    #         7.4 如果添加的购物车商品id不存在 则直接添加商品信息
+    #         7.5 返回
+    #     """
+    #
+    #     data=request.data
+    #
+    #     serializer=CartSerializer(data=data)
+    #     serializer.is_valid(raise_exception=True)
+    #
+    #     sku_id=serializer.validated_data.get('sku_id')
+    #     count=serializer.validated_data.get('count')
+    #     selected=serializer.validated_data.get('selected')
+    #
+    #     try:
+    #         user=request.user
+    #     except Exception as e :
+    #         user=None
+    #
+    #     if user is not None and user.is_authenticated:
+    #         redis_conn=get_redis_connection('cart')
+    #         redis_conn.hset('cart_%s'%user.id,sku_id,count)
+    #         redis_conn.hincrby('cart_%s' % user.id, sku_id, count)
+    #
+    #         if selected:
+    #             redis_conn.sadd('cart_selected_%s'%user.id,sku_id)
+    #
+    #             return Response(serializer.data)
+    #
+    #     else:
+    #         cookie_str=request.COOKIES.get('cart')
+    #         if cookie_str is not None:
+    #             decode=base64.b64decode(cookie_str)
+    #             cookie_cart=pickle.loads(decode)
+    #         else:
+    #             cookie_cart={}
+    #
+    #         if sku_id in cookie_cart:
+    #             origin_count=cookie_cart[sku_id]['count']
+    #             count += origin_count
+    #
+    #         cookie_cart[sku_id]={
+    #             'count':count,
+    #             'selected':selected
+    #         }
+    #
+    #         dumps=pickle.dumps(cookie_cart)
+    #         encode=base64.b64encode(dumps)
+    #         value=encode.decode()
+    #
+    #         response= Response(serializer.data)
+    #         response.set_cookie('cart',value)
+    #
+    #         return response
 
-        1.接收数据
-        2.校验数据(商品是否存在,商品的个数是否充足)
-        3.获取校验之后的数据
-        4.获取用户信息
-        5.根据用户的信息进行判断用户是否登陆
-        6.登陆用户保存在redis中
-            6.1 连接redis
-            6.2 将数据保存在redis中的hash 和 set中
-            6.3 返回相应
-        7.未登录用户保存在cookie中
-            7.1 先获取cookie数据
-            7.2 判断是否存在cookie数据
-            7.3 如果添加的购物车商品id存在 则进行商品数量的累加
-            7.4 如果添加的购物车商品id不存在 则直接添加商品信息
-            7.5 返回
-        """
+    #GET         cart/           获取购物车数据
 
-        data=request.data
-
-        serializer=CartSerializer(data=data)
+    def post(self, request):
+        # 1.接收数据
+        data = request.data
+        # 2.校验数据(商品是否存在,商品的个数是否充足)
+        serializer = CartSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-
-        sku_id=serializer.validated_data.get('sku_id')
-        count=serializer.validated_data.get('count')
-        selected=serializer.validated_data.get('selected')
-
+        # 3.获取校验之后的数据
+        sku_id = serializer.validated_data.get('sku_id')
+        count = serializer.validated_data.get('count')
+        selected = serializer.validated_data.get('selected')
+        # 4.获取用户信息
         try:
-            user=request.user
-        except Exception as e :
-            user=None
-
+            user = request.user
+        except Exception as e:
+            user = None
+        # 5.根据用户的信息进行判断用户是否登陆
+        # request.user.is_authenticated
         if user is not None and user.is_authenticated:
-            redis_conn=get_redis_connection('cart')
-            redis_conn.hset('cart_%s'%user.id,sku_id,count)
-            if selected:
-                redis_conn.sadd('cart_selected_%s'%user.id,sku_id)
+            # 6.登陆用户保存在redis中
+            #     6.1 连接redis
+            redis_conn = get_redis_connection('cart')
+            #     6.2 将数据保存在redis中的hash 和 set中
+            # hash  cart_userid: sku_id:count
+            # 应该累加数据
+            # redis_conn.hset('cart_%s'%user.id,sku_id,count)
 
-                return Response(serializer.data)
+            # redis_conn.hincrby('cart_%s'%user.id,sku_id,count)
+            # # set  cart_selected_userid: sku_id
+            # if selected:
+            #     redis_conn.sadd('cart_selected_%s'%user.id,sku_id)
+
+
+
+            # 管道① 创建管道
+            pl = redis_conn.pipeline()
+
+            # 管道② 将指令添加到管道中
+            pl.hincrby('cart_%s' % user.id, sku_id, count)
+            # set  cart_selected_userid: sku_id
+            if selected:
+                pl.sadd('cart_selected_%s' % user.id, sku_id)
+
+            # 管道③  执行
+            pl.execute()
+
+            #     6.3 返回相应
+            return Response(serializer.data)
 
         else:
-            cookie_str=request.COOKIES.get('cart')
-            if cookie_str is not None:
-                decode=base64.b64decode(cookie_str)
-                cookie_cart=pickle.loads(decode)
-            else:
-                cookie_cart={}
+            # cart: {}
 
+            # 7.未登录用户保存在cookie中
+            #     7.1 先获取cookie数据
+            cookie_str = request.COOKIES.get('cart')
+            #     7.2 判断是否存在cookie数据
+            if cookie_str is not None:
+                # 说明有数据
+                # ① 对base64数据进行解码
+                decode = base64.b64decode(cookie_str)
+                # ② 将二进制转换位字典
+                cookie_cart = pickle.loads(decode)
+            else:
+                # 说明没有数据
+                # 初始化
+                cookie_cart = {}
+
+            # 7.3 如果添加的购物车商品id存在 则进行商品数量的累加
+            # cookie_cart = {sku_id: {count:xxx,selected:xxx}}
             if sku_id in cookie_cart:
-                origin_count=cookie_cart[sku_id]['count']
+                # 存在
+                # 原个数
+                origin_count = cookie_cart[sku_id]['count']
+                # 现个数  count = count+origin_count
                 count += origin_count
-            cookie_cart[sku_id]={
-                'count':count,
-                'selected':selected
+            # 7.4 如果添加的购物车商品id不存在 则直接添加商品信息
+            # cookie_cart = {sku_id: {count:xxx,selected:xxx}}
+            cookie_cart[sku_id] = {
+                'count': count,
+                'selected': selected
             }
 
-            dumps=pickle.dumps(cookie_cart)
-            encode=base64.b64encode(dumps)
-            value=encode.decode()
+            # 7.5 对字典进行处理
+            # 7.5.1 将字典转换为二进制
+            dumps = pickle.dumps(cookie_cart)
+            # 7.5.2 进行base64的编码
+            encode = base64.b64encode(dumps)
+            # 7.5.3 将bytes类型转换为str
+            value = encode.decode()
 
-            response= Response(serializer.data)
-            response.set_cookie('cart',value)
+            #     7.6 返回相应
+            response = Response(serializer.data)
+
+            response.set_cookie('cart', value)
 
             return response
 
-    #GET         cart/           获取购物车数据
+
+
     def get(self,request):
 
         # 1.接收用户信息

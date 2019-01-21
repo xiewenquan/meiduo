@@ -51,6 +51,8 @@ def merge_cookie_to_redis(request, user, response):
             redis_conn.sadd('cart_selected_%s'%user.id, *selected_ids)
 
         # 6.删除cookie数据
+        response.delete_cookie('cart')
+
         return response
 
     return response
