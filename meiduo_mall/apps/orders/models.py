@@ -5,7 +5,7 @@ from goods.models import SKU
 
 # Create your models here.
 
-
+#订单信息
 class OrderInfo(BaseModel):
     """
     订单信息
@@ -52,6 +52,7 @@ class OrderInfo(BaseModel):
         verbose_name_plural = verbose_name
 
 
+#商品信息
 class OrderGoods(BaseModel):
     """
     订单商品

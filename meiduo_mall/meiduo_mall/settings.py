@@ -66,6 +66,8 @@ INSTALLED_APPS = [
     'goods.apps.GoodsConfig',
     'contents.apps.ContentsConfig',
     'orders.apps.OrdersConfig',
+    'pay.apps.PayConfig',
+
 ]
 
 MIDDLEWARE = [
@@ -335,3 +337,14 @@ HAYSTACK_CONNECTIONS = {
 
 # 当添加、修改、删除数据时，自动生成索引
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+
+# 支付宝
+ALIPAY_APPID = "2016092400588275"
+ALIPAY_URL = "https://openapi.alipaydev.com/gateway.do"
+ALIPAY_DEBUG = True
+APP_PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'apps/pay/keys/app_private_key.pem')
+ALIPAY_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'apps/pay/keys/alipay_public_key.pem')
+
+#收集静态文件目录
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'front/static')

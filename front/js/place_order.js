@@ -20,24 +20,24 @@ var vm = new Vue({
     },
     mounted: function(){
         // 获取地址信息
-        // axios.get(this.host + '/users/addresses/', {
-        //         headers: {
-        //             'Authorization': 'JWT ' + this.token
-        //         },
-        //         responseType: 'json'
-        //     })
-        //     .then(response => {
-        //         this.addresses = response.data.addresses;
-        //         this.nowsite = response.data.default_address_id;
-        //     })
-        //     .catch(error => {
-        //         status = error.response.status;
-        //         if (status == 401 || status == 403) {
-        //             location.href = 'login.html?next=/user_center_site.html';
-        //         } else {
-        //             alert(error.response.data.detail);
-        //         }
-        //     })
+        axios.get(this.host + '/users/addresses/', {
+                headers: {
+                    'Authorization': 'JWT ' + this.token
+                },
+                responseType: 'json'
+            })
+            .then(response => {
+                this.addresses = response.data.addresses;
+                this.nowsite = response.data.default_address_id;
+            })
+            .catch(error => {
+                status = error.response.status;
+                if (status == 401 || status == 403) {
+                    location.href = 'login.html?next=/user_center_site.html';
+                } else {
+                    alert(error.response.data.detail);
+                }
+            })
 
         // 获取结算商品信息
         axios.get(this.host+'/orders/places/', {
@@ -47,7 +47,7 @@ var vm = new Vue({
                 responseType: 'json'
             })
             .then(response => {
-                this.skus = response.data;
+                this.skus = response.data.skus;
                 this.freight = response.data.freight;
                 this.total_count = 0;
                 this.total_amount = 0;

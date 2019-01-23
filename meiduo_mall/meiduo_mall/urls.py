@@ -35,4 +35,7 @@ urlpatterns = [
     url(r'^cart/', include('carts.urls')),
 
     url(r'^orders/', include('orders.urls', namespace='orders')),
+
+    url(r'^pay/', include('pay.urls')),
+
 ]

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from goods.models import SKU
-from orders.serializers import OrderPlaceSerializer, OrderSKUSerialzier
+from orders.serializers import OrderPlaceSerializer, OrderSKUSerialzier, OrderSerializer
 
 """
 订单列表展示
@@ -67,6 +67,24 @@ class PlaceOrderAPIView(APIView):
         # serializer = OrderSKUSerialzier(skus, many=True)
 
         return Response(serializer.data)
+
+
+"""
+提交订单
+
+1. 接收前端数据 (用户信息,地址信息,支付方式)
+2. 验证数据
+3. 数据入库
+4. 返回相应
+
+POST    /orders/
+"""
+from rest_framework.generics import CreateAPIView
+class OrderAPIView(CreateAPIView):
+
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = OrderSerializer
 
 
 
