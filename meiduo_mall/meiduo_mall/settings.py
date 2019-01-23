@@ -113,6 +113,14 @@ DATABASES = {
         'USER': 'root',  # 数据库用户名
         'PASSWORD': 'mysql',  # 数据库用户密码
         'NAME': 'meiduo_mall_1',  # 数据库名字
+    },
+    'slave': {
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': '127.0.0.1',  # 数据库主机
+        'PORT': 9306,  # 数据库端口
+        'USER': 'root',  # 数据库用户名
+        'PASSWORD': 'mysql',  # 数据库用户密码
+        'NAME': 'meiduo_mall_1',  # 数据库名字
     }
 }
 
@@ -348,3 +356,6 @@ ALIPAY_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'apps/pay/keys/alipay_public_key
 
 #收集静态文件目录
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'front/static')
+
+# 配置读写分离
+DATABASE_ROUTERS = ['utils.db_router.MasterSlaveRouter']
